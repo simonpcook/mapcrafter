@@ -29,7 +29,166 @@ namespace mc {
 
 namespace {
 
+uint64_t readBits(uint64_t Data, unsigned from, unsigned to) {
+	Data >>= from;
+	uint64_t Mask = (1ULL << (to-from+1)) - 1;
+	return Data & Mask;
+}
+
+unsigned dataSizetoBitSize(size_t size) {
+	// The "packed" version is was data.size() * 64 / (16*16*16)
+	// So this the size will store 64 versions of the data
+	switch (size) {
+		default: assert(false && "Unsupported size");
+		/* NEW SIZES */
+		case 64: return 1;
+		case 128: return 2;
+		case 196: return 3;
+		case 256: return 4;
+		case 342: return 5;
+		case 410: return 6;
+		case 456: return 7;
+		case 512: return 8;
+		case 586: return 9;
+		case 683: return 10;
+		case 820: return 11; /* FIXME: COULD BE 12 TOO! */
+
+		/* OLD SIZES */
+		case 192: return 3;
+		case 320: return 5;
+		case 384: return 6;
+		case 448: return 7;
+		case 576: return 9;
+		case 640: return 10;
+		case 704: return 11;
+		case 768: return 12;
+	}
+}
+
+bool isNewSize(size_t size) {
+	switch (size) {
+		default: return false;
+		case 64:
+		case 128:
+		case 196:
+		case 256:
+		case 342:
+		case 410:
+		case 456:
+		case 512:
+		case 586:
+		case 683:
+		case 820:
+			return true;
+	}
+}
+
+void readPackedShortsNew(const std::vector<int64_t>& data, uint16_t* palette) {
+	int bits_per_entry = dataSizetoBitSize(data.size());
+
+	unsigned int i = 0, j = 0;
+	while (i < data.size()) {
+		switch(bits_per_entry) {
+			default: assert(false && "unknown bits_per_entry");
+			case 4:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 3);
+				if (j<4096) palette[j++] = readBits(data[i], 4, 7);
+				if (j<4096) palette[j++] = readBits(data[i], 8, 11);
+				if (j<4096) palette[j++] = readBits(data[i], 12, 15);
+				if (j<4096) palette[j++] = readBits(data[i], 16, 19);
+				if (j<4096) palette[j++] = readBits(data[i], 20, 23);
+				if (j<4096) palette[j++] = readBits(data[i], 24, 27);
+				if (j<4096) palette[j++] = readBits(data[i], 28, 31);
+				if (j<4096) palette[j++] = readBits(data[i], 32, 35);
+				if (j<4096) palette[j++] = readBits(data[i], 36, 39);
+				if (j<4096) palette[j++] = readBits(data[i], 40, 43);
+				if (j<4096) palette[j++] = readBits(data[i], 44, 47);
+				if (j<4096) palette[j++] = readBits(data[i], 48, 51);
+				if (j<4096) palette[j++] = readBits(data[i], 52, 55);
+				if (j<4096) palette[j++] = readBits(data[i], 56, 59);
+				if (j<4096) palette[j++] = readBits(data[i], 60, 63);
+				break;
+			case 5:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 4);
+				if (j<4096) palette[j++] = readBits(data[i], 5, 9);
+				if (j<4096) palette[j++] = readBits(data[i], 10, 14);
+				if (j<4096) palette[j++] = readBits(data[i], 15, 19);
+				if (j<4096) palette[j++] = readBits(data[i], 20, 24);
+				if (j<4096) palette[j++] = readBits(data[i], 25, 29);
+				if (j<4096) palette[j++] = readBits(data[i], 30, 34);
+				if (j<4096) palette[j++] = readBits(data[i], 35, 39);
+				if (j<4096) palette[j++] = readBits(data[i], 40, 44);
+				if (j<4096) palette[j++] = readBits(data[i], 45, 49);
+				if (j<4096) palette[j++] = readBits(data[i], 50, 54);
+				if (j<4096) palette[j++] = readBits(data[i], 55, 59);
+				break;
+			case 6:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 5);
+				if (j<4096) palette[j++] = readBits(data[i], 6, 11);
+				if (j<4096) palette[j++] = readBits(data[i], 12, 17);
+				if (j<4096) palette[j++] = readBits(data[i], 18, 23);
+				if (j<4096) palette[j++] = readBits(data[i], 24, 29);
+				if (j<4096) palette[j++] = readBits(data[i], 30, 35);
+				if (j<4096) palette[j++] = readBits(data[i], 36, 41);
+				if (j<4096) palette[j++] = readBits(data[i], 42, 47);
+				if (j<4096) palette[j++] = readBits(data[i], 48, 53);
+				if (j<4096) palette[j++] = readBits(data[i], 54, 59);
+				break;
+			case 7:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 6);
+				if (j<4096) palette[j++] = readBits(data[i], 7, 13);
+				if (j<4096) palette[j++] = readBits(data[i], 14, 20);
+				if (j<4096) palette[j++] = readBits(data[i], 21, 27);
+				if (j<4096) palette[j++] = readBits(data[i], 28, 34);
+				if (j<4096) palette[j++] = readBits(data[i], 35, 41);
+				if (j<4096) palette[j++] = readBits(data[i], 42, 48);
+				if (j<4096) palette[j++] = readBits(data[i], 49, 55);
+				if (j<4096) palette[j++] = readBits(data[i], 56, 62);
+				break;
+			case 8:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 7);
+				if (j<4096) palette[j++] = readBits(data[i], 8, 15);
+				if (j<4096) palette[j++] = readBits(data[i], 16, 23);
+				if (j<4096) palette[j++] = readBits(data[i], 24, 31);
+				if (j<4096) palette[j++] = readBits(data[i], 32, 39);
+				if (j<4096) palette[j++] = readBits(data[i], 40, 47);
+				if (j<4096) palette[j++] = readBits(data[i], 48, 55);
+				if (j<4096) palette[j++] = readBits(data[i], 56, 63);
+				break;
+			case 9:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 8);
+				if (j<4096) palette[j++] = readBits(data[i], 9, 17);
+				if (j<4096) palette[j++] = readBits(data[i], 18, 26);
+				if (j<4096) palette[j++] = readBits(data[i], 27, 35);
+				if (j<4096) palette[j++] = readBits(data[i], 36, 44);
+				if (j<4096) palette[j++] = readBits(data[i], 45, 53);
+				if (j<4096) palette[j++] = readBits(data[i], 54, 62);
+				break;
+			case 10:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 9);
+				if (j<4096) palette[j++] = readBits(data[i], 10, 19);
+				if (j<4096) palette[j++] = readBits(data[i], 20, 29);
+				if (j<4096) palette[j++] = readBits(data[i], 30, 39);
+				if (j<4096) palette[j++] = readBits(data[i], 40, 49);
+				if (j<4096) palette[j++] = readBits(data[i], 50, 59);
+				break;
+			case 11:
+				if (j<4096) palette[j++] = readBits(data[i], 0, 10);
+				if (j<4096) palette[j++] = readBits(data[i], 11, 21);
+				if (j<4096) palette[j++] = readBits(data[i], 22, 32);
+				if (j<4096) palette[j++] = readBits(data[i], 33, 43);
+				if (j<4096) palette[j++] = readBits(data[i], 44, 54);
+		}
+		i++;
+	}
+	assert(j == 16*16*16);
+}
+
 void readPackedShorts(const std::vector<int64_t>& data, uint16_t* palette) {
+	// If this a post-20w17a format data block, use new read code
+	if (isNewSize(data.size()))
+		return readPackedShortsNew(data, palette);
+
 	// this is basically taken from Minecraft Overviewer
 	// https://github.com/gmcnew/Minecraft-Overviewer/blob/minecraft113/overviewer_core/world.py#L809
 	// maybe we can keep this, or maybe we could do something with unions for speed-up?
@@ -254,7 +413,7 @@ bool Chunk::readNBT(mc::BlockStateRegistry& block_registry, const char* data, si
 
 		readPackedShorts(blockstates.payload, section.block_ids);
 		
-		int bits_per_entry = blockstates.payload.size() * 64 / (16*16*16);
+		int bits_per_entry = dataSizetoBitSize(blockstates.payload.size());
 		bool ok = true;
 		for (size_t i = 0; i < 16*16*16; i++) {
 			if (section.block_ids[i] >= palette_blockstates.size()) {
